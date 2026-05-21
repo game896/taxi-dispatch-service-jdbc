@@ -1,0 +1,191 @@
+CREATE TABLE Dispecer 
+(
+    mbrZ NUMBER NOT NULL,
+    rVrm NUMBER
+);
+
+ALTER TABLE Dispecer 
+ADD CONSTRAINT Dispecer_PK PRIMARY KEY (mbrZ);
+
+CREATE TABLE JeAdmin 
+(
+    Vozac_mbrZ  NUMBER NOT NULL,
+    Vozac_mbrZ1 NUMBER NOT NULL
+);
+
+ALTER TABLE JeAdmin 
+ADD CONSTRAINT JeAdmin_PK PRIMARY KEY (Vozac_mbrZ, Vozac_mbrZ1);
+
+CREATE TABLE JeTipa 
+(
+    TipVozila_sifrTip            NUMBER NOT NULL,
+    TipVozila_TarifnaGrupa_nazTg VARCHAR2(100) NOT NULL,
+    regBr                        VARCHAR2(100) NOT NULL,
+    Vozilov1_Vozilov1_ID         NUMBER NOT NULL,
+    Vozilo_Vozilo_ID             NUMBER NOT NULL,
+    Vozilo_regBr                 VARCHAR2(100) NOT NULL
+);
+
+ALTER TABLE JeTipa 
+ADD CONSTRAINT JeTipa_PK PRIMARY KEY (TipVozila_sifrTip, TipVozila_TarifnaGrupa_nazTg);
+
+CREATE TABLE Klijent 
+(
+    mbrKl         NUMBER NOT NULL,
+    emailKl       VARCHAR2(100) NOT NULL,
+    brtelKl       VARCHAR2(100),
+    imeKl         VARCHAR2(50),
+    przKl         VARCHAR2(50),
+    Dispecer_mbrZ NUMBER NOT NULL
+);
+
+ALTER TABLE Klijent 
+ADD CONSTRAINT Klijent_PK PRIMARY KEY (mbrKl);
+
+CREATE TABLE Koristi 
+(
+    JeTipa_sifrTip      NUMBER NOT NULL,
+    JeTipa_nazTg        VARCHAR2(100) NOT NULL,
+    ObavljaVoznje_mbrZ  NUMBER NOT NULL,
+    ObavljaVoznje_nazTg VARCHAR2(100) NOT NULL
+);
+
+ALTER TABLE Koristi 
+ADD CONSTRAINT Koristi_PK PRIMARY KEY 
+(JeTipa_sifrTip, JeTipa_nazTg, ObavljaVoznje_mbrZ, ObavljaVoznje_nazTg);
+
+CREATE TABLE NarucujeVoznju 
+(
+    Klijent_mbrKl            NUMBER NOT NULL,
+    TarifnaGrupa_nazTg       VARCHAR2(100) NOT NULL,
+    ObavljaVoznje_Vozac_mbrZ NUMBER NOT NULL,
+    Ov_nazTg                 VARCHAR2(100) NOT NULL,
+    cenVoz                   NUMBER,
+    pocDest                  VARCHAR2(200),
+    zavDest                  VARCHAR2(200)
+);
+
+ALTER TABLE NarucujeVoznju 
+ADD CONSTRAINT NarucujeVoznju_PK PRIMARY KEY (Klijent_mbrKl, TarifnaGrupa_nazTg);
+
+CREATE TABLE ObavljaVoznje 
+(
+    Vozac_mbrZ         NUMBER NOT NULL,
+    TarifnaGrupa_nazTg VARCHAR2(100) NOT NULL
+);
+
+ALTER TABLE ObavljaVoznje 
+ADD CONSTRAINT ObavljaVoznje_PK PRIMARY KEY (Vozac_mbrZ, TarifnaGrupa_nazTg);
+
+CREATE TABLE TarifnaGrupa 
+(
+    nazTg  VARCHAR2(100) NOT NULL,
+    opisTG VARCHAR2(200) NOT NULL
+);
+
+ALTER TABLE TarifnaGrupa 
+ADD CONSTRAINT TarifnaGrupa_PK PRIMARY KEY (nazTg);
+
+CREATE TABLE TipVozila 
+(
+    sifrTip            NUMBER NOT NULL,
+    nazTip             VARCHAR2(200),
+    opisTip            VARCHAR2(300),
+    TarifnaGrupa_nazTg VARCHAR2(100) NOT NULL
+);
+
+ALTER TABLE TipVozila 
+ADD CONSTRAINT TipVozila_PK PRIMARY KEY (sifrTip, TarifnaGrupa_nazTg);
+
+CREATE TABLE Vozac 
+(
+    mbrZ    NUMBER NOT NULL,
+    bDzr    NUMBER,
+    brVD    VARCHAR2(100),
+    datIdVD DATE
+);
+
+ALTER TABLE Vozac 
+ADD CONSTRAINT Vozac_PK PRIMARY KEY (mbrZ);
+
+CREATE TABLE Vozilo 
+(
+    regBr VARCHAR2(100) NOT NULL
+);
+
+ALTER TABLE Vozilo 
+ADD CONSTRAINT Vozilo_PK PRIMARY KEY (regBr);
+
+CREATE TABLE Zaposleni 
+(
+    mbrZ NUMBER NOT NULL,
+    imeZ VARCHAR2(50) NOT NULL,
+    preZ VARCHAR2(50) NOT NULL,
+    pltZ NUMBER NOT NULL,
+    katZ VARCHAR2(1) NOT NULL
+);
+
+ALTER TABLE Zaposleni 
+ADD CONSTRAINT Zaposleni_PK PRIMARY KEY (mbrZ);
+
+ALTER TABLE Dispecer 
+ADD CONSTRAINT Disp_Zap_FK FOREIGN KEY (mbrZ)
+REFERENCES Zaposleni(mbrZ);
+
+ALTER TABLE JeAdmin 
+ADD CONSTRAINT JA_V1_FK FOREIGN KEY (Vozac_mbrZ)
+REFERENCES Vozac(mbrZ);
+
+ALTER TABLE JeAdmin 
+ADD CONSTRAINT JA_V2_FK FOREIGN KEY (Vozac_mbrZ1)
+REFERENCES Vozac(mbrZ);
+
+ALTER TABLE JeTipa 
+ADD CONSTRAINT JT_TV_FK FOREIGN KEY (TipVozila_sifrTip, TipVozila_TarifnaGrupa_nazTg)
+REFERENCES TipVozila(sifrTip, TarifnaGrupa_nazTg);
+
+ALTER TABLE JeTipa 
+ADD CONSTRAINT JT_VOZ_FK FOREIGN KEY (Vozilo_regBr)
+REFERENCES Vozilo(regBr);
+
+ALTER TABLE Klijent 
+ADD CONSTRAINT Kl_Disp_FK FOREIGN KEY (Dispecer_mbrZ)
+REFERENCES Dispecer(mbrZ);
+
+ALTER TABLE Koristi 
+ADD CONSTRAINT Kor_JT_FK FOREIGN KEY (JeTipa_sifrTip, JeTipa_nazTg)
+REFERENCES JeTipa(TipVozila_sifrTip, TipVozila_TarifnaGrupa_nazTg);
+
+ALTER TABLE Koristi 
+ADD CONSTRAINT Kor_OV_FK FOREIGN KEY (ObavljaVoznje_mbrZ, ObavljaVoznje_nazTg)
+REFERENCES ObavljaVoznje(Vozac_mbrZ, TarifnaGrupa_nazTg);
+
+ALTER TABLE NarucujeVoznju 
+ADD CONSTRAINT NV_Kl_FK FOREIGN KEY (Klijent_mbrKl)
+REFERENCES Klijent(mbrKl);
+
+ALTER TABLE NarucujeVoznju 
+ADD CONSTRAINT NV_OV_FK FOREIGN KEY (ObavljaVoznje_Vozac_mbrZ, Ov_nazTg)
+REFERENCES ObavljaVoznje(Vozac_mbrZ, TarifnaGrupa_nazTg);
+
+ALTER TABLE NarucujeVoznju 
+ADD CONSTRAINT NV_TG_FK FOREIGN KEY (TarifnaGrupa_nazTg)
+REFERENCES TarifnaGrupa(nazTg);
+
+ALTER TABLE ObavljaVoznje 
+ADD CONSTRAINT OV_TG_FK FOREIGN KEY (TarifnaGrupa_nazTg)
+REFERENCES TarifnaGrupa(nazTg);
+
+ALTER TABLE ObavljaVoznje 
+ADD CONSTRAINT OV_V_FK FOREIGN KEY (Vozac_mbrZ)
+REFERENCES Vozac(mbrZ);
+
+ALTER TABLE TipVozila 
+ADD CONSTRAINT TV_TG_FK FOREIGN KEY (TarifnaGrupa_nazTg)
+REFERENCES TarifnaGrupa(nazTg);
+
+ALTER TABLE Vozac 
+ADD CONSTRAINT Voz_Zap_FK FOREIGN KEY (mbrZ)
+REFERENCES Zaposleni(mbrZ);
+
+
